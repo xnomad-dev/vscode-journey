@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VS Code Journey</title>
+  <script src="journey-data.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0d1117;
+      --card: #161b22;
+      --card2: #1c2128;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #7d8590;
+      --blue: #58a6ff;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --orange: #f0883e;
+      --red: #f85149;
+      --purple: #bc8cff;
+      --teal: #39d353;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, #161b22 0%, #0d1117 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 32px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .header-left h1 {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header-left p {
+      color: var(--muted);
+      margin-top: 4px;
+      font-size: 13px;
+    }
+    .header-right {
+      text-align: right;
+    }
+    .streak-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #f0883e22, #f0883e44);
+      border: 1px solid #f0883e55;
+      border-radius: 20px;
+      padding: 8px 16px;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--orange);
+    }
+    .last-updated {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    /* LAYOUT */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px 40px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 400;
+    }
+
+    /* STATS ROW */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: border-color 0.2s;
+    }
+    .stat-card:hover { border-color: var(--blue); }
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 3px;
+    }
+
+    /* MAIN GRID */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    /* SKILLS */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .skill-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      transition: border-color 0.2s, transform 0.1s;
+    }
+    .skill-card:hover { border-color: var(--blue); transform: translateY(-1px); }
+    .skill-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .skill-name {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .skill-level {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .level-beginner { background: #d2992222; color: var(--yellow); border: 1px solid #d2992244; }
+    .level-intermediate { background: #58a6ff22; color: var(--blue); border: 1px solid #58a6ff44; }
+    .level-advanced { background: #3fb95022; color: var(--green); border: 1px solid #3fb95044; }
+    .skill-bar-bg {
+      height: 5px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .skill-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 1s ease;
+    }
+    .skill-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 7px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* MILESTONES SIDEBAR */
+    .milestones-panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      height: fit-content;
+    }
+    .milestone-item {
+      display: flex;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .milestone-item:last-child { border-bottom: none; }
+    .milestone-icon {
+      font-size: 22px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .milestone-title {
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .milestone-desc {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+    .milestone-date {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    /* PROJECTS */
+    .projects-section { margin-bottom: 32px; }
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .project-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      transition: border-color 0.2s, transform 0.1s;
+    }
+    .project-card:hover { border-color: var(--blue); transform: translateY(-1px); }
+    .project-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .project-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .status-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .status-live { background: #3fb95022; color: var(--green); border: 1px solid #3fb95044; }
+    .status-progress { background: #58a6ff22; color: var(--blue); border: 1px solid #58a6ff44; }
+    .status-review { background: #bc8cff22; color: var(--purple); border: 1px solid #bc8cff44; }
+    .status-paused { background: #7d859022; color: var(--muted); border: 1px solid #7d859044; }
+    .status-planning { background: #f0883e22; color: var(--orange); border: 1px solid #f0883e44; }
+    .project-desc {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+    .project-tech {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 10px;
+    }
+    .tech-tag {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .project-footer {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+
+    /* ACTIVITY TIMELINE */
+    .timeline-section { margin-bottom: 32px; }
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .timeline-item {
+      display: flex;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .timeline-item:last-child { border-bottom: none; }
+    .timeline-date {
+      width: 90px;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+    .date-day {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1;
+      color: var(--blue);
+    }
+    .date-month {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .timeline-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--blue);
+      border: 2px solid var(--bg);
+      outline: 1px solid var(--blue);
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+    .timeline-content {
+      flex: 1;
+    }
+    .timeline-summary {
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .timeline-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+    .skill-tag {
+      background: #58a6ff15;
+      border: 1px solid #58a6ff30;
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-size: 11px;
+      color: var(--blue);
+    }
+    .new-things {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .new-tag {
+      background: #3fb95015;
+      border: 1px solid #3fb95030;
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-size: 11px;
+      color: var(--green);
+    }
+    .new-tag::before { content: "✦ "; font-size: 9px; }
+
+    /* CATEGORY FILTER */
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-size: 12px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: white;
+    }
+
+    /* FOOTER */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* CATEGORY COLORS */
+    .cat-Language { color: #79c0ff; }
+    .cat-Framework { color: #56d364; }
+    .cat-DevOps { color: #f0883e; }
+    .cat-Backend { color: #bc8cff; }
+    .cat-Frontend { color: #ffa657; }
+    .cat-AI { color: #58a6ff; }
+    .cat-Automation { color: #39d353; }
+
+    @media (max-width: 1100px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .main-grid { grid-template-columns: 1fr; }
+      .projects-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 700px) {
+      .container { padding: 16px; }
+      .header { padding: 20px 16px; flex-direction: column; gap: 12px; align-items: flex-start; }
+      .projects-grid { grid-template-columns: 1fr; }
+      .skills-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>VS Code Journey</h1>
+    <p id="subtitle">Loading...</p>
+  </div>
+  <div class="header-right">
+    <div class="streak-badge" id="streak-badge">🔥 Loading...</div>
+    <div class="last-updated" id="last-updated"></div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- STATS -->
+  <div class="stats-grid" id="stats-grid"></div>
+
+  <!-- SKILLS + MILESTONES -->
+  <div class="main-grid">
+    <div>
+      <div class="section-title">Skills Progress <span id="skills-subtitle"></span></div>
+      <div class="filter-bar" id="filter-bar">
+        <button class="filter-btn active" onclick="filterSkills('All')">All</button>
+      </div>
+      <div class="skills-grid" id="skills-grid"></div>
+    </div>
+    <div>
+      <div class="section-title">Milestones 🏆</div>
+      <div class="milestones-panel" id="milestones-panel"></div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="projects-section">
+    <div class="section-title">Projects <span id="projects-subtitle"></span></div>
+    <div class="projects-grid" id="projects-grid"></div>
+  </div>
+
+  <!-- ACTIVITY -->
+  <div class="timeline-section">
+    <div class="section-title">Activity Log <span id="activity-subtitle"></span></div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px 24px;">
+      <div class="timeline" id="timeline"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <span>VS Code Journey Tracker</span>
+  <span id="footer-stats"></span>
+</div>
+
+<script>
+  const D = JOURNEY_DATA;
+
+  // ── helpers ─────────────────────────────────────────────────────────────────
+  function daysSince(dateStr) {
+    const diff = new Date() - new Date(dateStr);
+    return Math.max(1, Math.floor(diff / 86400000) + 1);
+  }
+  function formatDate(dateStr) {
+    return new Date(dateStr).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+  }
+  function getLevel(p) {
+    if (p >= 67) return { label: 'Advanced', cls: 'level-advanced' };
+    if (p >= 34) return { label: 'Intermediate', cls: 'level-intermediate' };
+    return { label: 'Beginner', cls: 'level-beginner' };
+  }
+  function getSkillColor(p) {
+    if (p >= 67) return 'var(--green)';
+    if (p >= 34) return 'var(--blue)';
+    return 'var(--yellow)';
+  }
+  function getStatusLabel(s) {
+    const map = { live:'Live', progress:'In Progress', review:'Under Review', paused:'Paused', planning:'Planning' };
+    return map[s] || s;
+  }
+
+  // ── header ──────────────────────────────────────────────────────────────────
+  const days = daysSince(D.profile.startDate);
+  document.querySelector('.header-left h1').textContent =
+    (D.profile.name ? D.profile.name + "'s " : "") + "VS Code Journey";
+  document.getElementById('subtitle').textContent =
+    `Started ${formatDate(D.profile.startDate)} · ${days} day${days!==1?'s':''} in`;
+  document.getElementById('streak-badge').textContent = `🔥 ${days} Day Journey`;
+  document.getElementById('last-updated').textContent =
+    `Last updated: ${formatDate(D.sessions[0].date)}`;
+
+  // ── stats ───────────────────────────────────────────────────────────────────
+  const liveProjects = D.projects.filter(p => p.status === 'live').length;
+  const newThings = D.sessions.reduce((a, s) => a + (s.newThings||[]).length, 0);
+  const statsData = [
+    { icon:'📅', color:'#58a6ff22', iconColor:'var(--blue)', value: days, label:'Days Active' },
+    { icon:'💻', color:'#3fb95022', iconColor:'var(--green)', value: D.profile.totalSessions, label:'Sessions Logged' },
+    { icon:'🚀', color:'#f0883e22', iconColor:'var(--orange)', value: liveProjects, label:'Projects Live' },
+    { icon:'⚡', color:'#bc8cff22', iconColor:'var(--purple)', value: newThings, label:'New Things Learned' },
+  ];
+  document.getElementById('stats-grid').innerHTML = statsData.map(s => `
+    <div class="stat-card">
+      <div class="stat-icon" style="background:${s.color}">
+        <span style="font-size:20px">${s.icon}</span>
+      </div>
+      <div>
+        <div class="stat-value" style="color:${s.iconColor}">${s.value}</div>
+        <div class="stat-label">${s.label}</div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('skills-subtitle').textContent = `· ${D.skills.length} skills tracked`;
+  document.getElementById('projects-subtitle').textContent = `· ${D.projects.length} projects`;
+  document.getElementById('activity-subtitle').textContent = `· ${D.sessions.length} sessions`;
+  document.getElementById('footer-stats').textContent = `${D.skills.length} skills · ${D.projects.length} projects · ${D.sessions.length} sessions`;
+
+  // ── skill categories filter ─────────────────────────────────────────────────
+  let activeFilter = 'All';
+  const categories = [...new Set(D.skills.map(s => s.category))];
+  const filterBar = document.getElementById('filter-bar');
+  categories.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn';
+    btn.textContent = cat;
+    btn.onclick = () => filterSkills(cat);
+    filterBar.appendChild(btn);
+  });
+
+  function filterSkills(cat) {
+    activeFilter = cat;
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.toggle('active', b.textContent === cat);
+    });
+    renderSkills();
+  }
+
+  // ── skills ──────────────────────────────────────────────────────────────────
+  function renderSkills() {
+    const filtered = activeFilter === 'All' ? D.skills : D.skills.filter(s => s.category === activeFilter);
+    document.getElementById('skills-grid').innerHTML = filtered.map(s => {
+      const lv = getLevel(s.progress);
+      const color = getSkillColor(s.progress);
+      return `
+        <div class="skill-card">
+          <div class="skill-header">
+            <div class="skill-name">${s.icon} ${s.name}</div>
+            <span class="skill-level ${lv.cls}">${lv.label}</span>
+          </div>
+          <div class="skill-bar-bg">
+            <div class="skill-bar-fill" style="width:${s.progress}%;background:${color}"></div>
+          </div>
+          <div class="skill-meta">
+            <span>${s.progress}% mastery</span>
+            <span>${s.sessions} sessions · last ${formatDate(s.lastUsed)}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+  renderSkills();
+
+  // ── milestones ──────────────────────────────────────────────────────────────
+  document.getElementById('milestones-panel').innerHTML = [...D.milestones].reverse().map(m => `
+    <div class="milestone-item">
+      <div class="milestone-icon">${m.icon}</div>
+      <div>
+        <div class="milestone-title">${m.title}</div>
+        <div class="milestone-desc">${m.description}</div>
+        <div class="milestone-date">${formatDate(m.date)}</div>
+      </div>
+    </div>
+  `).join('');
+
+  // ── projects ─────────────────────────────────────────────────────────────────
+  document.getElementById('projects-grid').innerHTML = D.projects.map(p => `
+    <div class="project-card">
+      <div class="project-header">
+        <div class="project-name">${p.name}</div>
+        <span class="status-badge status-${p.status}">${getStatusLabel(p.status)}</span>
+      </div>
+      <div class="project-desc">${p.description}</div>
+      <div class="project-tech">${p.tech.map(t => `<span class="tech-tag">${t}</span>`).join('')}</div>
+      <div class="project-footer">
+        <span>📅 Started ${formatDate(p.startDate)}</span>
+        <span>💻 ${p.sessions} session${p.sessions !== 1 ? 's' : ''}</span>
+      </div>
+    </div>
+  `).join('');
+
+  // ── timeline ─────────────────────────────────────────────────────────────────
+  document.getElementById('timeline').innerHTML = D.sessions.map(s => {
+    const d = new Date(s.date);
+    return `
+      <div class="timeline-item">
+        <div class="timeline-date">
+          <div class="date-day">${d.getDate()}</div>
+          <div class="date-month">${d.toLocaleString('default',{month:'short'})} ${d.getFullYear()}</div>
+        </div>
+        <div class="timeline-dot"></div>
+        <div class="timeline-content">
+          <div class="timeline-summary">${s.summary}</div>
+          <div class="timeline-tags">
+            ${s.skills.map(sk => `<span class="skill-tag">${sk}</span>`).join('')}
+            ${s.projects.map(pr => `<span class="tech-tag">📁 ${pr}</span>`).join('')}
+          </div>
+          ${s.newThings && s.newThings.length ? `
+            <div class="new-things">
+              ${s.newThings.map(n => `<span class="new-tag">${n}</span>`).join('')}
+            </div>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+</script>
+</body>
+</html>
