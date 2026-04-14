@@ -72,31 +72,53 @@ node log-session.js --setup
 Follow the prompts to enter your free Gemini API key.
 Get your free key at → [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
 
-**After each coding session:**
+**After each coding session, run it from your project folder:**
 ```bash
-node log-session.js
+cd my-project
+node path/to/vscode-journey/log-session.js
 ```
 
+Or point it at your project with `--project`:
+```bash
+node log-session.js --project "d:/my-project"
 ```
-📝  What did you work on today?
-    > Built a login form with React and added Zod validation
 
-📁  Project name(s) (or Enter to skip):
-    > My App
+The logger automatically reads your **git history** to detect what you built:
 
-⚡  Any specific new things you learned?
-    > Zod schema validation, React Hook Form
+```
+─────────────────────────────────────────────────
+  VS Code Journey — Log a Session
+─────────────────────────────────────────────────
+
+🔍  Git activity detected in: my-project
+    📌  3 commits this session:
+       • Fix login validation bug
+       • Add Zod schema for user form
+       • Update API endpoint for auth
+    📊  12 files changed, 234 insertions(+), 45 deletions(-)
+
+📝  Add context (optional — git data above will be used if empty):
+    > 
+
+📁  Project name (or Enter for "my-project"):
+    > 
+
+⚡  Any specific new things you learned? (optional):
+    > Zod schema validation
 
 🤖  Analysing with Gemini...
 
 ✅  Session logged!
-  📋  Summary  : Built a login form in React using Zod for schema validation and React Hook Form for field management.
-  🛠   Skills   : React, TypeScript
-  📁  Projects : My App
-  ⚡  Learned  : Zod schema validation · React Hook Form integration
+  📋  Summary  : Fixed login validation and added Zod schema validation to the user form, updating the auth API endpoint.
+  🛠   Skills   : React, TypeScript, APIs & Integration
+  📁  Projects : My Project
+  ⚡  Learned  : Zod schema validation
+  🔀  Git repo : my-project (3 commits detected)
 ```
 
-Gemini identifies the skills, structures the entry, detects milestones, and updates your progress bars automatically.
+**No git repo?** It falls back to asking you manually. Description becomes required.
+
+Gemini uses your actual commit history as the source of truth — the session entry reflects what you *really* built, not just what you remember.
 
 ### Option C — Manual
 
