@@ -2,7 +2,7 @@
 
 A visual progress tracker for your VS Code learning journey. No server, no API, no sign-up — just open `dashboard.html` in your browser and watch your skills grow.
 
-![Dashboard Preview](https://raw.githubusercontent.com/placeholder/vscode-journey/main/preview.png)
+![Dashboard Preview](https://raw.githubusercontent.com/xnomad-dev/vscode-journey/main/preview.png)
 
 ---
 
