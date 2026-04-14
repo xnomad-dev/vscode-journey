@@ -1,6 +1,8 @@
 # VS Code Journey
 
-A visual progress tracker for your VS Code learning journey. No server, no API, no sign-up — just open `dashboard.html` in your browser and watch your skills grow.
+A visual progress tracker for your VS Code + Claude Code learning journey. Track your skills, projects, and daily sessions — no server, no sign-up, just open `dashboard.html` in your browser.
+
+> Built for **VS Code** users who use **Claude Code** — or anyone who wants to log their dev growth with a free AI API.
 
 ![Dashboard Preview](https://raw.githubusercontent.com/xnomad-dev/vscode-journey/main/preview.png)
 
@@ -8,11 +10,25 @@ A visual progress tracker for your VS Code learning journey. No server, no API, 
 
 ## What It Tracks
 
-- **Skills** — progress bars from Beginner → Intermediate → Advanced across 12+ skill categories
-- **Projects** — every project you build, with status badges and tech stack tags
-- **Activity Log** — session-by-session history of what you worked on and what you learned
-- **Milestones** — achievements for first-time moments (first deploy, first API, first test, etc.)
+- **Skills** — progress bars from Beginner → Intermediate → Advanced
+- **Projects** — every project you build with status badges and tech tags
+- **Activity Log** — session-by-session history of what you worked on
+- **Milestones** — achievements for first-time moments (first deploy, first API, etc.)
 - **Stats** — days active, sessions logged, live projects, new things learned
+
+---
+
+## Who Is This For?
+
+This project is built for the combination of **VS Code** + **Claude Code** users.
+
+| You use... | How sessions get logged |
+|---|---|
+| VS Code + Claude Code | **Automatic** — Claude updates your data at session end via `CLAUDE.md` |
+| VS Code + Gemini API (free) | **Semi-automatic** — run `node log-session.js` after each session |
+| Any editor | **Manual** — edit `journey-data.js` directly after each session |
+
+No paid subscription required. The Gemini API option is completely free.
 
 ---
 
@@ -20,47 +36,105 @@ A visual progress tracker for your VS Code learning journey. No server, no API, 
 
 ### 1. Clone the repo
 ```bash
-git clone https://github.com/YOUR_USERNAME/vscode-journey.git
+git clone https://github.com/xnomad-dev/vscode-journey.git
 cd vscode-journey
 ```
 
 ### 2. Open the dashboard
-Just double-click `dashboard.html` — it opens in your browser. No install, no server needed.
+Double-click `dashboard.html` — opens in your browser instantly. No install, no server.
 
 ### 3. Make it yours
-Edit `journey-data.js` to replace the demo data with your own:
-
+Edit `journey-data.js` and update the profile section:
 ```js
 profile: {
-  name: "Your Name",          // shown in the header
-  startDate: "2025-01-01",    // when you started
-  totalSessions: 1
+  name: "Your Name",       // shown in the header
+  startDate: "2025-01-01", // when you started
+  totalSessions: 0
 }
 ```
 
+Replace the demo sessions, skills, and projects with your own, then refresh the dashboard.
+
 ---
 
-## Updating Your Journey
+## Logging Sessions
 
-After each coding session, add a new entry to the `sessions` array in `journey-data.js`:
+### Option A — Automatic (Claude Code users)
+
+Include `CLAUDE.md` in your project. Claude Code will automatically update `journey-data.js` at the end of every session. Nothing manual needed.
+
+### Option B — Semi-automatic (Free Gemini API)
+
+**First-time setup** (one time only):
+```bash
+node log-session.js --setup
+```
+Follow the prompts to enter your free Gemini API key.
+Get your free key at → [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey)
+
+**After each coding session:**
+```bash
+node log-session.js
+```
+
+```
+📝  What did you work on today?
+    > Built a login form with React and added Zod validation
+
+📁  Project name(s) (or Enter to skip):
+    > My App
+
+⚡  Any specific new things you learned?
+    > Zod schema validation, React Hook Form
+
+🤖  Analysing with Gemini...
+
+✅  Session logged!
+  📋  Summary  : Built a login form in React using Zod for schema validation and React Hook Form for field management.
+  🛠   Skills   : React, TypeScript
+  📁  Projects : My App
+  ⚡  Learned  : Zod schema validation · React Hook Form integration
+```
+
+Gemini identifies the skills, structures the entry, detects milestones, and updates your progress bars automatically.
+
+### Option C — Manual
+
+Edit `journey-data.js` directly after each session:
 
 ```js
-{
-  date: "2026-04-15",
-  summary: "Built a login form with React and validated it with Zod.",
-  skills: ["React", "TypeScript"],
-  projects: ["My App"],
-  newThings: ["Zod schema validation", "React Hook Form"]
-}
+sessions: [
+  {
+    date: "2026-04-15",
+    summary: "Built a login form with React and Zod validation.",
+    skills: ["React", "TypeScript"],
+    projects: ["My App"],
+    newThings: ["Zod schema validation", "React Hook Form"]
+  },
+  // ... previous sessions
+]
 ```
-
-Then refresh `dashboard.html` — your progress updates instantly.
 
 ---
 
-## Skills Reference
+## Project Structure
 
-The demo includes these skill names. Use the same names in your session `skills` array:
+```
+vscode-journey/
+├── dashboard.html      ← open in browser to view progress
+├── journey-data.js     ← your data (edit this or let the tools update it)
+├── log-session.js      ← session logger (uses free Gemini API)
+├── CLAUDE.md           ← auto-update instructions for Claude Code users
+├── .env.example        ← copy to .env and add your Gemini API key
+├── .gitignore          ← keeps .env out of git
+└── README.md
+```
+
+---
+
+## Customising Skills
+
+The default skills:
 
 | Skill | Category |
 |---|---|
@@ -77,38 +151,9 @@ The demo includes these skill names. Use the same names in your session `skills`
 | Docker | DevOps |
 | Testing | Testing |
 
-Add your own by appending to the `skills` array in `journey-data.js`.
-
----
-
-## Auto-Update with Claude Code (Optional)
-
-If you use [Claude Code](https://claude.ai/code), include the `CLAUDE.md` file in your project root. Claude will automatically update your journey data at the end of every session — no manual logging needed.
-
----
-
-## Customisation
-
-All data lives in `journey-data.js`. The dashboard reads from it with no build step.
-
-| What to change | Where |
-|---|---|
-| Your name / start date | `profile` object |
-| Add a skill | Append to `skills` array |
-| Add a project | Append to `projects` array |
-| Log a session | Prepend to `sessions` array |
-| Add a milestone | Append to `milestones` array |
-
----
-
-## Project Structure
-
-```
-vscode-journey/
-├── dashboard.html      ← open this in your browser
-├── journey-data.js     ← edit this with your data
-├── CLAUDE.md           ← optional: auto-update with Claude Code
-└── README.md
+Add your own by appending to the `skills` array in `journey-data.js`:
+```js
+{ name: "Rust", icon: "🦀", progress: 10, sessions: 1, lastUsed: "2026-04-15", category: "Language" }
 ```
 
 ---
@@ -121,7 +166,17 @@ vscode-journey/
 | 34 – 66% | Intermediate |
 | 67 – 100% | Advanced |
 
-Adjust your skill `progress` values honestly as you grow.
+Each logged session automatically bumps the skill's progress slightly (the gain slows as you advance, reflecting real learning curves).
+
+---
+
+## Requirements
+
+- A modern browser (to view the dashboard)
+- Node.js 18+ (only needed for `log-session.js`)
+- A free Google account (only needed for the Gemini API option)
+
+No npm install. No build step. No server.
 
 ---
 
